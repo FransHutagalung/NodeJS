@@ -1,0 +1,105 @@
+  generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      Role     @default(USER)
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  googleID  String @default("") @unique
+
+  shippingId Int @default(1)
+  billingId  Int @default(1)
+
+  cart    Cart[]
+  address Addres[]
+  refreshToken  RefrehToken[]
+
+  @@map("Users")
+}
+
+model Addres {
+  id      Int     @id @default(autoincrement())
+  lineOne String
+  lineTwo String?
+  city    String
+  country String
+  pinCode String
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cart {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RefrehToken {
+  id Int @id @default(autoincrement())
+
+  userId  Int
+  user   User @relation(fields: [userId] , references: [id])
+  token  String  @default("") @db.Text
+  createdAt  DateTime @default(now())
+}
+
+model specialOffer{
+    id Int @id @default(autoincrement())
+    productId Int
+    product   Product @relation(fields: [productId], references: [id])
+    imageOffer String
+    Detail String 
+    point Int
+    title String
+}
+
+model Product {
+  id          Int    @id @default(autoincrement())
+  kodeProduct String @unique
+  title       String @default("Product")
+  type        String
+  stock       Int
+  status      String
+  imageURL    String
+  tag         String
+  brand       String
+  description String @default("") @db.Text
+  price       Int    @default(0)
+  // foreign key for cart 
+  cart        Cart[]
+  specialoffer specialOffer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // @@fulltext([tag]
+  // @@fulltext([tag,description])
+  @@map("Products")
+}

@@ -1,0 +1,5 @@
+{
+    "ext": ".ts,.js",
+    "exec": "npx ts-node ./src/index.ts",
+    "ignore": ["node_modules", "dist"]
+}
